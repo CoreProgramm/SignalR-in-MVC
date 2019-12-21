@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+
+}
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width" />
+<title>Index</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<link href="~/Content/cover.css" rel="stylesheet" />
+@section Scripts{
+    @*<script src="~/Scripts/jquery-3.3.1.min.js"></script>*@
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script type="text/javascript" src="/signalr/hubs"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            // Declare a proxy to reference the hub.
+            var notifications = $.connection.myHub;
+            //debugger;
+            // Create a function that the hub can call to broadcast messages.
+            notifications.client.updateMessages = function () {
+                getAllMessages()
+            };
+            // Start the connection.
+            $.connection.hub.start().done(function () {
+                console.log("connection started")
+                //notifications.onconn();
+                getAllMessages();
+            }).fail(function (e) {
+                alert(e);
+            });
+        });
+        function getAllMessages() {
+            var tbl = $('#messagesTable');
+            $.ajax({
+                url: '/Home/GetMessages',
+                contentType: 'application/html ; charset:utf-8',
+                type: 'GET',
+                dataType: 'html',
+                success: function (result) {
+                    console.log(result);
+                    var a2 = JSON.parse(result);
+                    tbl.empty();
+                    var i = 1;
+                    $.each(a2, function (key, value) {
+                        tbl.append('<tr>' + '<td>' + i + '</td>' + '<td>' + value.empName + '</td>' + '<td>' + value.Salary + '</td>' + '<td>' + value.DeptName + '</td>' + '<td>' + value.Designation + '</td>' +'</tr>');
+                        i = i + 1;
+                    });
+                }
+            });
+        }
+    </script>
+}
+<div class="container">
+    <div class="panel-group">
+        <div class="panel panel-default">
+            <div class="panel-heading">Employee Information</div>
+            <div class="panel-body">
+
+                <div>
+                    <table id="tab"></table>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Name</th>
+                                        <th>Salary</th>
+                                        <th>Department</th>
+                                        <th>Designation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="messagesTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
